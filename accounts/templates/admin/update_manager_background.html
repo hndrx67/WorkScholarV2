@@ -1,0 +1,275 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Update Manager Dashboard Background{% endblock %}
+
+{% block extra_css %}
+<style>
+    .upload-container {
+        max-width: 600px;
+        margin: 3rem auto;
+        padding: 2rem;
+        background: rgba(16, 18, 34, 0.95);
+        border-radius: 12px;
+        border: 1px solid rgba(65, 234, 212, 0.1);
+    }
+
+    .page-title {
+        color: #41EAD4;
+        font-family: 'Orbitron', sans-serif;
+        text-align: center;
+        margin-bottom: 2rem;
+        font-size: 1.8rem;
+    }
+
+    .upload-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .form-label {
+        color: #8A8D9F;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .file-input-wrapper {
+        position: relative;
+        border: 2px dashed rgba(65, 234, 212, 0.3);
+        border-radius: 8px;
+        padding: 2rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .file-input-wrapper:hover {
+        border-color: #41EAD4;
+        background: rgba(65, 234, 212, 0.05);
+    }
+
+    .file-input {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .file-placeholder {
+        color: #8A8D9F;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .file-placeholder i {
+        font-size: 2rem;
+        color: #41EAD4;
+    }
+
+    .submit-btn {
+        background: linear-gradient(45deg, #41EAD4, #FF206E);
+        color: white;
+        border: none;
+        padding: 1rem;
+        border-radius: 8px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(65, 234, 212, 0.2);
+    }
+
+    .back-btn {
+        display: inline-block;
+        color: #8A8D9F;
+        text-decoration: none;
+        margin-bottom: 1rem;
+        transition: color 0.3s ease;
+    }
+
+    .back-btn:hover {
+        color: #41EAD4;
+    }
+
+    .preview-container {
+        position: relative;
+        margin-top: 1.5rem;
+        border-radius: 8px;
+        overflow: hidden;
+        display: none;
+        aspect-ratio: 16/9;
+    }
+
+    .preview-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .preview-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, rgba(10, 11, 20, 0.8), rgba(16, 18, 34, 0.8));
+        pointer-events: none;
+    }
+
+    .preview-wrapper {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        transition: opacity 0.3s ease;
+    }
+
+    .error-message {
+        color: #FF206E;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
+
+    .opacity-control {
+        margin-top: 2rem;
+    }
+
+    .opacity-slider {
+        width: 100%;
+        height: 6px;
+        -webkit-appearance: none;
+        appearance: none;
+        background: rgba(65, 234, 212, 0.1);
+        outline: none;
+        border-radius: 3px;
+        margin: 1rem 0;
+    }
+
+    .opacity-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        background: #41EAD4;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .opacity-slider::-webkit-slider-thumb:hover {
+        transform: scale(1.2);
+        box-shadow: 0 0 10px rgba(65, 234, 212, 0.5);
+    }
+
+    .opacity-value {
+        color: #8A8D9F;
+        font-size: 0.9rem;
+        text-align: center;
+        margin-top: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="upload-container">
+    <a href="{% url 'admin_dashboard' %}" class="back-btn">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+    </a>
+    
+    <h1 class="page-title">Update Manager Dashboard Background</h1>
+
+    <form method="post" enctype="multipart/form-data" class="upload-form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label class="form-label">Select Background Image</label>
+            <div class="file-input-wrapper">
+                <input type="file" name="image" accept="image/*" class="file-input" id="backgroundInput" required>
+                <div class="file-placeholder">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <span>Drag and drop your image here or click to browse</span>
+                    <small>Supported formats: JPG, PNG, GIF (Max size: 5MB)</small>
+                </div>
+            </div>
+            {% if form.image.errors %}
+                <div class="error-message">{{ form.image.errors.0 }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-group opacity-control">
+            <label class="form-label">Background Opacity</label>
+            {{ form.opacity }}
+            <div class="opacity-value">Opacity: <span id="opacityValue">25%</span></div>
+        </div>
+
+        <div class="preview-container" id="previewContainer" {% if form.instance.image %}style="display: block;"{% endif %}>
+            <div class="preview-wrapper">
+                <img src="{% if form.instance.image %}{{ form.instance.image.url }}{% endif %}" alt="Preview" class="preview-image" id="previewImage">
+            </div>
+            <div class="preview-overlay"></div>
+        </div>
+
+        <button type="submit" class="submit-btn">Update Background</button>
+    </form>
+</div>
+
+<script>
+    document.getElementById('backgroundInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const previewImage = document.getElementById('previewImage');
+                previewImage.src = e.target.result;
+                document.getElementById('previewContainer').style.display = 'block';
+                updatePreviewOpacity();
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    const opacitySlider = document.querySelector('.opacity-slider');
+    const opacityValue = document.getElementById('opacityValue');
+    
+    opacitySlider.addEventListener('input', function() {
+        const value = Math.round(this.value * 100);
+        opacityValue.textContent = value + '%';
+        updatePreviewOpacity();
+    });
+
+    function updatePreviewOpacity() {
+        const previewWrapper = document.querySelector('.preview-wrapper');
+        const opacity = opacitySlider.value;
+        previewWrapper.style.opacity = opacity;
+    }
+
+    // Set initial opacity if form is pre-filled
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if form.instance and form.instance.opacity %}
+        const initialOpacity = {{ form.instance.opacity }};
+        opacitySlider.value = initialOpacity;
+        opacityValue.textContent = Math.round(initialOpacity * 100) + '%';
+        {% endif %}
+        updatePreviewOpacity();
+    });
+</script>
+{% endblock %}

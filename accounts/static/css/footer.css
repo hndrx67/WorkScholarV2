@@ -1,0 +1,242 @@
+/* Footer Styles */
+.footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: #1e1e2d;
+    color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    z-index: 100;
+    padding: 0;
+    transform: translateY(calc(100% - 40px));
+    transition: transform 0.4s ease;
+}
+
+.footer:hover {
+    transform: translateY(0);
+}
+
+.footer::before {
+    content: "▲ Work Scholar Footer ▲";
+    display: block;
+    text-align: center;
+    padding: 8px 0;
+    font-size: 14px;
+    background: #6c63ff;
+    cursor: pointer;
+    border-radius: 10px 10px 0 0;
+    margin-top: -40px;
+    color: white;
+    font-weight: 500;
+}
+
+.footer:hover::before {
+    content: "▼ Hide Footer ▼";
+}
+
+.footer-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding: 40px 5%;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.footer-section {
+    flex: 1;
+    min-width: 200px;
+    margin-bottom: 20px;
+    padding: 0 15px;
+}
+
+.footer-section h3 {
+    position: relative;
+    font-size: 18px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    color: #6c63ff;
+}
+
+.footer-section h3::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 2px;
+    width: 50px;
+    background: linear-gradient(90deg, #6c63ff, transparent);
+}
+
+.footer-section p {
+    color: #b3b3b3;
+    line-height: 1.6;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+/* Brand Section */
+.footer-section.brand .social-icons {
+    margin-top: 20px;
+}
+
+.footer-section.brand .social-icons a {
+    display: inline-block;
+    width: 36px;
+    height: 36px;
+    line-height: 36px;
+    text-align: center;
+    margin-right: 10px;
+    color: #fff;
+    background: rgba(108, 99, 255, 0.1);
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.footer-section.brand .social-icons a:hover {
+    background: #6c63ff;
+    transform: translateY(-3px);
+}
+
+/* Links Section */
+.footer-section.links ul {
+    list-style: none;
+}
+
+.footer-section.links ul li {
+    margin-bottom: 12px;
+}
+
+.footer-section.links ul li a {
+    color: #b3b3b3;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    position: relative;
+    padding-left: 15px;
+}
+
+.footer-section.links ul li a:before {
+    content: '›';
+    position: absolute;
+    left: 0;
+    font-size: 18px;
+    line-height: 1;
+    color: #6c63ff;
+    transition: transform 0.3s ease;
+}
+
+.footer-section.links ul li a:hover {
+    color: #fff;
+    padding-left: 20px;
+}
+
+.footer-section.links ul li a:hover:before {
+    transform: translateX(5px);
+}
+
+/* Contact Section */
+.footer-section.contact p {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.footer-section.contact p i {
+    margin-right: 10px;
+    color: #6c63ff;
+    width: 20px;
+    text-align: center;
+}
+
+/* Newsletter Section */
+.newsletter-form {
+    position: relative;
+    margin-top: 15px;
+}
+
+.newsletter-form input {
+    width: 100%;
+    padding: 12px 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.newsletter-form input:focus {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #6c63ff;
+}
+
+.newsletter-form button {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #6c63ff;
+    color: #fff;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.newsletter-form button:hover {
+    background: #5a52d5;
+}
+
+/* Footer Bottom */
+.footer-bottom {
+    background: rgba(0, 0, 0, 0.2);
+    text-align: center;
+    padding: 15px 0;
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+    .footer-container {
+        flex-direction: column;
+    }
+    
+    .footer-section {
+        width: 100%;
+        margin-bottom: 30px;
+    }
+    
+    .footer {
+        transform: translateY(calc(100% - 40px));
+    }
+    
+    .footer-section.brand,
+    .footer-section.links,
+    .footer-section.contact,
+    .footer-section.newsletter {
+        text-align: center;
+    }
+    
+    .footer-section h3::after {
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+    }
+    
+    .footer-section.links ul li a:before {
+        display: none;
+    }
+    
+    .footer-section.links ul li a {
+        padding-left: 0;
+    }
+    
+    .footer-section.contact p {
+        justify-content: center;
+    }
+}

@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Admin Dashboard - Work Scholar{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin.css' %}">
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'css/notifications.css' %}">
+<link rel="stylesheet" href="{% static 'css/search.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    .stats-container {
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .dashboard-content {
+        padding: 20px;
+        background-color: #f5f6fa;
+        border-radius: 10px;
+    }
+    .logo-container h2 {
+        color: white;
+        margin-top: 10px;
+        font-size: 1.5rem;
+    }
+    .stat-card i {
+        font-size: 2rem;
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(108, 99, 255, 0.1);
+        border-radius: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<nav class="sidebar">
+    <div class="logo-container">
+        <img src="{% static 'img/wslogo.png' %}" alt="Work Scholar Logo" class="logo">
+        <h2>Work Scholar</h2>
+    </div>
+    <ul class="nav-links">
+        <li class="active"><a href="#dashboard"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+        <a href="{% url 'add_user' %}" class="action-btn" data-action="add-user"><i class="fas fa-users"></i> Manage Users</a></li>
+        <li><a href="#departments"><i class="fas fa-building"></i> Departments</a></li>
+        <li><a href="#assignments"><i class="fas fa-tasks"></i> Work Assignments</a></li>
+        <li><a href="#reports"><i class="fas fa-file-alt"></i> Reports</a></li>
+        <li><a href="#settings"><i class="fas fa-cog"></i> Settings</a></li>
+        <li><a href="{% url 'update_login_background' %}"><i class="fas fa-image"></i> Update Login Background</a></li>
+        <li><a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+    </ul>
+</nav>
+
+<main class="main-content">
+    <header class="top-bar">
+        <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search..." id="searchInput">
+        </div>
+        <div class="user-menu">
+            <div class="notifications">
+                <i class="fas fa-bell"></i>
+                <span class="badge">3</span>
+            </div>
+            <div class="profile-dropdown">
+                <img src="{% static 'img/profile pic.jpg' %}" alt="Profile" class="profile-pic">
+                <span class="username">{{ request.user.username }}</span>
+                <div class="dropdown-content">
+                    <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="dashboard-content">
+        <div class="stats-container">
+            <div class="stat-card">
+                <i class="fas fa-user-graduate"></i>
+                <div class="stat-info">
+                    <h3>Total Students</h3>
+                    <p>{{ total_students }}</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-briefcase"></i>
+                <div class="stat-info">
+                    <h3>Active Assignments</h3>
+                    <p>{{ active_assignments }}</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-building"></i>
+                <div class="stat-info">
+                    <h3>Departments</h3>
+                    <p>{{ total_departments }}</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-clock"></i>
+                <div class="stat-info">
+                    <h3>Hours Logged</h3>
+                    <p>{{ total_hours }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-panels">
+            <div class="panel recent-activities">
+                <h2>Recent Activities</h2>
+                <div class="activity-list">
+                    {% for activity in recent_activities %}
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-circle"></i>
+                        </div>
+                        <div class="activity-details">
+                            <p>{{ activity.description }}</p>
+                            <span class="activity-time">{{ activity.timestamp|timesince }} ago</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="panel quick-actions">
+                <h2>Quick Actions</h2>
+                <div class="action-buttons">
+                    <!--<a href="{% url 'add_user' %}" class="action-btn" data-action="add-user">
+                        <i class="fas fa-plus"></i> Add New User
+                    </a> -->
+                    <button class="action-btn" data-action="generate-report">
+                        <i class="fas fa-clipboard-list"></i> Generate Report
+                    </button>
+                    <button class="action-btn" data-action="send-announcement">
+                        <i class="fas fa-envelope"></i> Send Announcement
+                    </button>
+                    <button class="action-btn" data-action="system-settings">
+                        <i class="fas fa-cog"></i> System Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Navigation handling
+    const navLinks = document.querySelectorAll('.nav-links a');
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            if (this.getAttribute('href').startsWith('#')) {
+                e.preventDefault();
+                navLinks.forEach(l => l.parentElement.classList.remove('active'));
+                this.parentElement.classList.add('active');
+            }
+        });
+    });
+
+    // Profile dropdown
+    const profileDropdown = document.querySelector('.profile-dropdown');
+    profileDropdown.addEventListener('click', function() {
+        this.classList.toggle('active');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!profileDropdown.contains(e.target)) {
+            profileDropdown.classList.remove('active');
+        }
+    });
+
+    // Quick action buttons
+    const actionButtons = document.querySelectorAll('.action-btn');
+    actionButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const action = this.dataset.action;
+            // TODO: Implement actions
+            console.log('Action clicked:', action);
+        });
+    });
+});
+</script>
+{% endblock %}

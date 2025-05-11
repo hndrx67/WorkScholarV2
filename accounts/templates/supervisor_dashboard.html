@@ -1,0 +1,291 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Supervisor Dashboard - Work Scholar{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<style>
+    .timesheet-approval {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .timesheet-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .timesheet-item:last-child {
+        border-bottom: none;
+    }
+
+    .student-info {
+        flex: 2;
+    }
+
+    .timesheet-details {
+        flex: 3;
+        display: flex;
+        gap: 20px;
+    }
+
+    .timesheet-actions {
+        flex: 1;
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+    }
+
+    .btn-approve {
+        background: var(--success);
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .btn-reject {
+        background: var(--danger);
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .assignment-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .assignment-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .assignment-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+    }
+
+    .detail-item {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .detail-label {
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 5px;
+    }
+
+    .detail-value {
+        font-weight: 500;
+        color: #2c3e50;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<nav class="sidebar">
+    <div class="logo-container">
+        <img src="{% static 'img/wslogo.png' %}" alt="Work Scholar Logo" class="logo">
+        <h2>Work Scholar</h2>
+    </div>
+    <ul class="nav-links">
+        <li class="active"><a href="#"><i class="fas fa-home"></i> Dashboard</a></li>
+        <li><a href="#timesheets"><i class="fas fa-clock"></i> Timesheets</a></li>
+        <li><a href="#assignments"><i class="fas fa-tasks"></i> Assignments</a></li>
+        <li><a href="#students"><i class="fas fa-users"></i> Students</a></li>
+        <li><a href="#reports"><i class="fas fa-chart-bar"></i> Reports</a></li>
+        <li><a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+    </ul>
+</nav>
+
+<main class="main-content">
+    <header class="top-bar">
+        <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search..." id="searchInput">
+        </div>
+        <div class="user-menu">
+            <div class="notifications">
+                <i class="fas fa-bell"></i>
+                <span class="badge">{{ pending_timesheets.count }}</span>
+            </div>
+            <div class="profile-dropdown">
+                <img src="{% static 'img/profile pic.jpg' %}" alt="Profile" class="profile-pic">
+                <span class="username">{{ request.user.username }}</span>
+                <div class="dropdown-content">
+                    <a href="#profile"><i class="fas fa-user"></i> Profile</a>
+                    <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="dashboard-content">
+        <div class="stats-container">
+            <div class="stat-card">
+                <i class="fas fa-users"></i>
+                <div class="stat-info">
+                    <h3>Supervised Students</h3>
+                    <p>{{ supervised_assignments.count }}</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-clock"></i>
+                <div class="stat-info">
+                    <h3>Pending Timesheets</h3>
+                    <p>{{ pending_timesheets.count }}</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-check-circle"></i>
+                <div class="stat-info">
+                    <h3>Active Assignments</h3>
+                    <p>{{ supervised_assignments.filter.is_active.count }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-panels">
+            <div class="panel">
+                <h2><i class="fas fa-clock"></i> Pending Timesheets</h2>
+                <div class="timesheet-approval">
+                    {% if pending_timesheets %}
+                        {% for timesheet in pending_timesheets %}
+                        <div class="timesheet-item">
+                            <div class="student-info">
+                                <strong>{{ timesheet.student.get_full_name }}</strong>
+                                <div>ID: {{ timesheet.student.id_number }}</div>
+                            </div>
+                            <div class="timesheet-details">
+                                <div>
+                                    <div class="detail-label">Date</div>
+                                    <div class="detail-value">{{ timesheet.date }}</div>
+                                </div>
+                                <div>
+                                    <div class="detail-label">Hours</div>
+                                    <div class="detail-value">{{ timesheet.hours_worked }}</div>
+                                </div>
+                                <div>
+                                    <div class="detail-label">Assignment</div>
+                                    <div class="detail-value">{{ timesheet.assignment.position }}</div>
+                                </div>
+                            </div>
+                            <div class="timesheet-actions">
+                                <button class="btn-approve" onclick="approveTimesheet({{ timesheet.id }})">
+                                    <i class="fas fa-check"></i> Approve
+                                </button>
+                                <button class="btn-reject" onclick="rejectTimesheet({{ timesheet.id }})">
+                                    <i class="fas fa-times"></i> Reject
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p>No pending timesheets to approve.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2><i class="fas fa-tasks"></i> Active Assignments</h2>
+                {% if supervised_assignments %}
+                    {% for assignment in supervised_assignments %}
+                    <div class="assignment-card">
+                        <div class="assignment-header">
+                            <h3>{{ assignment.student.get_full_name }}</h3>
+                            <span class="badge {% if assignment.is_active %}success{% else %}danger{% endif %}">
+                                {{ assignment.is_active|yesno:"Active,Inactive" }}
+                            </span>
+                        </div>
+                        <div class="assignment-details">
+                            <div class="detail-item">
+                                <span class="detail-label">Position</span>
+                                <span class="detail-value">{{ assignment.position }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Department</span>
+                                <span class="detail-value">{{ assignment.department }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Start Date</span>
+                                <span class="detail-value">{{ assignment.start_date }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Student ID</span>
+                                <span class="detail-value">{{ assignment.student.id_number }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No active assignments found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Navigation handling
+    const navLinks = document.querySelectorAll('.nav-links a');
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            if (this.getAttribute('href').startsWith('#')) {
+                e.preventDefault();
+                navLinks.forEach(l => l.parentElement.classList.remove('active'));
+                this.parentElement.classList.add('active');
+            }
+        });
+    });
+
+    // Profile dropdown
+    const profileDropdown = document.querySelector('.profile-dropdown');
+    profileDropdown.addEventListener('click', function() {
+        this.classList.toggle('active');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!profileDropdown.contains(e.target)) {
+            profileDropdown.classList.remove('active');
+        }
+    });
+});
+
+function approveTimesheet(timesheetId) {
+    if (confirm('Are you sure you want to approve this timesheet?')) {
+        // TODO: Implement timesheet approval functionality
+        console.log('Approving timesheet:', timesheetId);
+    }
+}
+
+function rejectTimesheet(timesheetId) {
+    const reason = prompt('Please enter a reason for rejecting this timesheet:');
+    if (reason) {
+        // TODO: Implement timesheet rejection functionality
+        console.log('Rejecting timesheet:', timesheetId, 'Reason:', reason);
+    }
+}
+</script>
+{% endblock %}
